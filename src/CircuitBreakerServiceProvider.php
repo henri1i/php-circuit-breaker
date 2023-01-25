@@ -2,7 +2,7 @@
 
 namespace Henri1i\CircuitBreaker;
 
-use Illuminate\Support\;
+use Illuminate\Support\ServiceProvider;
 
 class CircuitBreakerServiceProvider extends ServiceProvider
 {
