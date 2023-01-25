@@ -1,0 +1,25 @@
+{
+    "name": "henri1i/circuit-breaker",
+    "description": "A simple implementation of the circuit breaker algorithm.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Henri1i\\CircuitBreaker\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "henri",
+            "email": "contact@henri1i.me"
+        }
+    ],
+    "require": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Henri1i\\CircuitBreaker\\CircuitBreakerServiceProvider"
+            ]
+        }
+    }
+}
