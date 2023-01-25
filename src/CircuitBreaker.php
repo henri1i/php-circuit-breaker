@@ -2,17 +2,18 @@
 
 namespace Henri1i\CircuitBreaker;
 
+use Henri1i\CircuitBreaker\Domain\CircuitBreakerConfig;
 use Henri1i\CircuitBreaker\Domain\StoreRepository;
 
 class CircuitBreaker
 {
-    private Config $config;
+    private CircuitBreakerConfig $config;
     private StoreRepository $store;
 
     public function __construct(
         private readonly string $service,
     ) {
-        $this->config = new Config();
+        $this->config = new CircuitBreakerConfig();
         $this->store = app(StoreRepository::class);
     }
 
