@@ -1,6 +1,6 @@
 <?php
 
-namespace Henri1i\CircuitBreaker;
+namespace Henri1i\CircuitBreaker\Infra;
 
 use Illuminate\Support\ServiceProvider;
 

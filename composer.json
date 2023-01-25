@@ -21,7 +21,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Henri1i\\CircuitBreaker\\CircuitBreakerServiceProvider"
+                "Henri1i\\CircuitBreaker\\Infra\\CircuitBreakerServiceProvider"
             ]
         }
     }
