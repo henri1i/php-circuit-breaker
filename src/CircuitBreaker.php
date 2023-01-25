@@ -3,18 +3,22 @@
 namespace Henri1i\CircuitBreaker;
 
 use Henri1i\CircuitBreaker\Domain\CircuitBreakerConfig;
-use Henri1i\CircuitBreaker\Domain\StoreRepository;
+use Henri1i\CircuitBreaker\Domain\StateRepository;
+use Henri1i\CircuitBreaker\Domain\Key;
 
 class CircuitBreaker
 {
     private CircuitBreakerConfig $config;
-    private StoreRepository $store;
+    private StateRepository $state;
 
     public function __construct(
         private readonly string $service,
     ) {
         $this->config = new CircuitBreakerConfig();
-        $this->store = app(StoreRepository::class);
+
+        /** @var StateRepository $state */
+        $state = app(StateRepository::class);
+        $this->state = $state;
     }
 
     public function isAvailable(): bool
@@ -54,12 +58,12 @@ class CircuitBreaker
 
     private function isOpen(): bool
     {
-        return (bool) Cache::get($this->getKey(Key::OPEN), 0);
+        return (bool) $this->state->get($this->getKey(Key::OPEN), 0);
     }
 
     private function isHalfOpen(): bool
     {
-        $isHalfOpen = (bool) Cache::get($this->getKey(Key::HALF_OPEN), 0);
+        $isHalfOpen = (bool) $this->state->get($this->getKey(Key::HALF_OPEN), 0);
 
         return ! $this->isOpen() && $isHalfOpen;
     }
@@ -82,34 +86,34 @@ class CircuitBreaker
     {
         $key = $this->getKey(Key::ERRORS);
 
-        if (! Cache::get($key)) {
-            Cache::put($key, 1, $this->config->timeoutWindow);
+        if (! $this->state->get($key)) {
+            $this->state->put($key, 1, $this->config->timeoutWindow);
         }
 
-        Cache::increment($key);
+        $this->state->increment($key);
     }
 
     private function incrementSuccesses(): void
     {
         $key = $this->getKey(Key::SUCCESSES);
 
-        if (! Cache::get($key)) {
-            Cache::put($key, 1, $this->config->timeoutWindow);
+        if (! $this->state->get($key)) {
+            $this->state->put($key, 1, $this->config->timeoutWindow);
         }
 
-        Cache::increment($key);
+        $this->state->increment($key);
     }
 
     private function reset(): void
     {
         foreach (Key::cases() as $key) {
-            Cache::delete($this->getKey($key));
+            $this->state->delete($this->getKey($key));
         }
     }
 
     private function setOpenCircuit(): void
     {
-        Cache::put(
+        $this->state->put(
             $this->getKey(Key::OPEN),
             time(),
             $this->config->errorTimeout
@@ -118,7 +122,7 @@ class CircuitBreaker
 
     private function setHalfOpenCircuit(): void
     {
-        Cache::put(
+        $this->state->put(
             $this->getKey(Key::HALF_OPEN),
             time(),
             $this->config->errorTimeout + $this->config->halfOpenTimeout
@@ -127,7 +131,7 @@ class CircuitBreaker
 
     private function getErrorsCount(): int
     {
-        return (int) Cache::get(
+        return (int) $this->state->get(
             $this->getKey(Key::ERRORS),
             0
         );
@@ -135,7 +139,7 @@ class CircuitBreaker
 
     private function getSuccessesCount(): int
     {
-        return (int) Cache::get(
+        return (int) $this->state->get(
             $this->getKey(Key::SUCCESSES),
             0
         );
